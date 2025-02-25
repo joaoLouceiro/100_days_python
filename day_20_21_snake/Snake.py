@@ -1,13 +1,15 @@
 from Square import Square
+from common import SCREEN_SIZE
 
-__vertical__ = ["up", "down"]
-__horizontal__ = ["left", "right"]
+LEFT = (-20, 0)
+RIGHT = (20, 0)
+UP = (0, 20)
+DOWN = (0, -20)
 
 class Snake:
     def __init__(self):
-        self.size = 3
-        self.__current_direction__ = 'up'
-        self.__movement_vector__ = (20, 0)
+        self.size = 16
+        self.__movement_vector__ = RIGHT
         self.no_walls = True
         body = [Square()]
         for i in range(1, self.size):
@@ -29,33 +31,33 @@ class Snake:
         x = self.head.get_x() + self.__movement_vector__[0]
         y = self.head.get_y() + self.__movement_vector__[1]
 
-        if self.no_walls:
-            if x > 280 or x < - 280:
-                x *= -1
-            if y > 280 or y < - 280:
-                y *= -1
+        screen_abs_size = SCREEN_SIZE / 2
 
+        if self.no_walls:
+            if x >= screen_abs_size or x <= - screen_abs_size:
+                x = x * -1 + 20 * (x / screen_abs_size)
+            if y >= screen_abs_size or y <= - screen_abs_size:
+                y = y * -1 + 20 * (y / screen_abs_size)
         return x, y
 
     def right(self):
-        if self.__current_direction__ != "left":
-            self.set_direction("right")
-            self.__movement_vector__ = (20, 0)
+        if self.__movement_vector__ != LEFT:
+            self.__movement_vector__ = RIGHT
 
     def left(self):
-        if self.__current_direction__ != "right":
-            self.set_direction("left")
-            self.__movement_vector__ = (-20, 0)
+        if self.__movement_vector__ != RIGHT:
+            self.__movement_vector__ = LEFT
 
     def up(self):
-        if self.__current_direction__ != "down":
-            self.set_direction("up")
-            self.__movement_vector__ = (0, 20)
+        if self.__movement_vector__ != DOWN:
+            self.__movement_vector__ = UP
 
     def down(self):
-        if self.__current_direction__ != "up":
-            self.set_direction("down")
-            self.__movement_vector__ = (0, -20)
+        if self.__movement_vector__ != UP:
+            self.__movement_vector__ = DOWN
 
-    def set_direction(self, direction):
-        self.__current_direction__ = direction
+    def eat(self):
+        last_square = self.body[self.size - 1]
+        self.size += 1
+        new_square = Square(last_square.get_x(), last_square.get_y())
+        self.body.append(new_square)
