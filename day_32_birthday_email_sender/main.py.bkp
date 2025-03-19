@@ -1,0 +1,27 @@
+from random import choice
+import smtplib
+import datetime as dt
+
+EMAIL = "***REMOVED***"
+PASSWORD = "***REMOVED***"
+
+def get_smtp_connection():
+    smtp_connection = smtplib.SMTP(host="***REMOVED***", port=***REMOVED***)
+    smtp_connection.starttls()
+    return smtp_connection
+
+def login_smtp(smtp_connection):
+    smtp_connection.login(user=EMAIL, password=PASSWORD)
+
+def send_email(smtp_connection, subject, message):
+    smtp_connection.sendmail(from_addr=EMAIL, to_addrs="***REMOVED***", msg=f"Subject: {subject}\n\n{message}".encode("utf-8"))
+
+if dt.datetime.now().isoweekday() == 3:
+    connection = get_smtp_connection()
+    login_smtp(connection)
+    with open("quotes.txt") as file:
+        send_email(smtp_connection=connection, subject="Monday Quotes", message=choice(file.readlines()))
+    connection.close()
+
+
+
