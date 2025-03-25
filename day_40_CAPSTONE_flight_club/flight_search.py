@@ -1,3 +1,5 @@
+import time
+
 import requests
 from os import environ as env
 from datetime import date, timedelta
@@ -45,11 +47,17 @@ class FlightSearch:
         except KeyError:
             print(f"No city found for {cityName}")
 
-    def get_flight_offer(self, origin, destination, limit, is_direct):
+    def get_flight_offer(self, origin, destination, limit, is_direct="true"):
         print(f"# Getting flight offers for {destination}")
         tomorrow = date.today() + timedelta(days=30)
         url = f"{API_URL}/v2/shopping/flight-offers?originLocationCode={origin}&destinationLocationCode={destination}&departureDate={tomorrow}&adults=1&nonStop={is_direct}&currencyCode=EUR&maxPrice={limit}"
         req = self.req_wrapper(method=requests.get, url=url)
+        if len(req.json()["data"]) == 0:
+            print("\tNo direct flights found")
+            time.sleep(1)
+            is_direct="false"
+            url = f"{API_URL}/v2/shopping/flight-offers?originLocationCode={origin}&destinationLocationCode={destination}&departureDate={tomorrow}&adults=1&nonStop={is_direct}&currencyCode=EUR&maxPrice={limit}"
+            req = self.req_wrapper(method=requests.get, url=url)
         return req.json()["data"]
 
     def get_token(self):
