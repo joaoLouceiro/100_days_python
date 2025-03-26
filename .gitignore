@@ -1,3 +1,5 @@
+*.cache
+*.venv/
 .env
 *.idea/
 # Byte-compiled / optimized / DLL files
