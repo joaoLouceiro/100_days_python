@@ -1,0 +1,33 @@
+:root {
+    --color_light: #FEFAE0;
+    --color_medium_a: #faedcd;
+    --color_medium_b: #e9edc9;
+    --color_dark_a: #ccd5ae;
+    --color_dark_b: #d4a373;
+}
+
+html {
+    display : block;
+    height: 100vh;
+    background:
+        linear-gradient(
+            to bottom,
+            var(--color_dark_b) 0%,
+            var(--color_dark_b) 30%,
+            var(--color_light) 30%,
+            var(--color_light) 100%
+            );
+    background-attachment: fixed;
+}
+
+body {
+    padding: 0% 20%;
+    justify-content: center;
+}
+
+.blog_post {
+    padding: 5vh;
+    background: white;
+    margin: 10vh;
+
+}
