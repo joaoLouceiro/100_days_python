@@ -1,3 +1,5 @@
+import os
+
 from flask import Flask, render_template, redirect, url_for, request
 from flask_bootstrap import Bootstrap5
 from flask_sqlalchemy import SQLAlchemy
@@ -26,6 +28,14 @@ This will install the packages from requirements.txt for this project.
 app = Flask(__name__)
 app.config['SECRET_KEY'] = '8BYkEfBA6O6donzWlSihBXox7C0sKR6b'
 Bootstrap5(app)
+
+TMDB_TOKEN=os.getenv("TMDB_TOKEN")
+
+tmdb_headers = {
+    "accept": "application/json",
+    "Authorization": f"Bearer {TMDB_TOKEN}"
+}
+
 
 # CREATE DB
 class Base(DeclarativeBase):
@@ -93,14 +103,10 @@ def add():
     if form.validate_on_submit():
         import requests
         url = "https://api.themoviedb.org/3/search/movie?"
-        headers = {
-            "accept": "application/json",
-            "Authorization": "Bearer ***REMOVED***"
-        }
         params={
             "query": form.title.data
         }
-        response = requests.get(url, headers=headers, params=params)
+        response = requests.get(url, headers=tmdb_headers, params=params)
         response.raise_for_status()
         return render_template("select.html", movie_list=response.json()["results"])
 
@@ -115,12 +121,7 @@ def select():
     movie_id = request.args.get("movie_id")
     url = f"https://api.themoviedb.org/3/movie/{movie_id}?language=en-US"
 
-    headers = {
-        "accept": "application/json",
-        "Authorization": "Bearer ***REMOVED***"
-    }
-
-    response = requests.get(url, headers=headers)
+    response = requests.get(url, headers=tmdb_headers)
     response.raise_for_status()
     res = response.json()
     movie = Movie(
