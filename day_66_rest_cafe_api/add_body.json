@@ -1,0 +1,12 @@
+{
+    "name": "My other cafe",
+    "map_url": "someurl.com",
+    "img_url": "img_url",
+    "location": "location",
+    "seats": "seats",
+    "has_toilet": true,
+    "has_wifi": true,
+    "has_sockets": true,
+    "can_take_calls": true,
+    "coffee_price": "coffee_price"
+}
