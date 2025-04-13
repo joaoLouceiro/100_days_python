@@ -21,7 +21,7 @@ db.init_app(app)
 
 # CREATE TABLE IN DB
 
-class User(db.Model):
+class User(UserMixin, db.Model):
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     email: Mapped[str] = mapped_column(String(100), unique=True)
     password: Mapped[str] = mapped_column(String(100))
@@ -31,7 +31,13 @@ class User(db.Model):
 with app.app_context():
     db.create_all()
 
-user = None
+
+login_manager = LoginManager()
+login_manager.init_app(app)
+
+@login_manager.user_loader
+def load_user(user_id):
+    return db.get_or_404(User, user_id)
 
 
 @app.route('/')
@@ -45,41 +51,54 @@ def register():
 
 @app.post('/register')
 def add_user():
-    global user
     form = request.form
     new_user = User(
         email=form.get("email"),
         name=form.get("name"),
-        password=form.get("password")
+        password=get_hashed_pass(form.get("password"))
     )
-    db.session.add(new_user)
-    db.session.commit()
-    user = new_user
-    return redirect('secrets')
-
+    user = db.session.execute(db.select(User).where(User.email == form.get("email"))).scalar()
+    if user:
+        flash("Email in use")
+        return redirect('register')
+    else:
+        db.session.add(new_user)
+        db.session.commit()
+        return redirect('login')
 
 
 @app.route('/login', methods=['get', 'post'])
 def login():
     if request.method == "POST":
-        return redirect(url_for('secrets'))
+        email = request.form.get("email")
+        user = db.session.execute(db.select(User).where(User.email == email)).scalar()
+        if user and check_password_hash(user.password, request.form.get("password")):
+            login_user(user)
+            return redirect(url_for('secrets'))
+        else:
+            flash("Invalid email or password")
     return render_template("login.html")
 
-
 @app.route('/secrets')
+@login_required
 def secrets():
-    return render_template("secrets.html", user=user)
+    return render_template("secrets.html")
 
 
 @app.route('/logout')
+@login_required
 def logout():
-    pass
+    logout_user()
+    return redirect('/')
 
 
 @app.route('/download')
+@login_required
 def download():
     return send_from_directory('static/files/', 'cheat_sheet.pdf')
 
+def get_hashed_pass(password):
+    return generate_password_hash(password, method='pbkdf2:sha256', salt_length=8)
 
 if __name__ == "__main__":
     app.run(debug=True)
