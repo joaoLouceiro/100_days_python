@@ -1,4 +1,3 @@
 matplotlib
 scipy
-PIL
 jupyter
