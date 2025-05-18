@@ -1,3 +1,4 @@
 matplotlib
+pooch
 scipy
 jupyter
